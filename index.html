@@ -284,7 +284,7 @@
         <div class="column is-four-fifths">
           <h2 class="title is-3">How does <span class="dnerf">InkLayer</span> work?</h2>
           <div class="content has-text-justified mt-4">
-            <p class="font-bold">✴️ Given a raster sketch, our goal is to produce a segmentation map such that pixels belonging to the same object instance are grouped together. Based on the segmentation map, we also divide the sketch into layers, sorted by depth. </p>
+            <p class="font-bold">Given a raster sketch, our goal is to produce a segmentation map such that pixels belonging to the same object instance are grouped together. Based on the segmentation map, we also divide the sketch into layers, sorted by depth. </p>
           </div>
 
           <!-- main methods -->
@@ -300,7 +300,32 @@
           <h2 class="title is-4">Sketch-aware object detection</h2>
           <div class="content has-text-justified mt-4">
             <p><b>🟥 Challenge: </b> Grounding DINO is an object detection model which outputs bounding boxes for recognized object instances, based on a given text prompt describing the scene. While effective for natural images, the model in its original configuration demonstrates limited generalization to sketches. </p>
-            <p><b>✅ Our Solution: </b>We fine-tune a Grounding DINO model specifically for sketches. We train the model to distinguish between instances based on their visual characteristics, aiming to push the model to rely on Gestalt properties such as closure, continuity, and emergence, to group together strokes forming a single object. <b> ⭐ Our fine-tuning technique proves highly effective, achieving a substantial improvement in GroundingDINO's detection performance on sketches, with Average Precision increasing from 26% to 74%. </b> Please refer to the paper for technical details and numerical evaluations.
+          </div>
+
+          <div class="content has-text-justified  place-items-center ">
+            <img src="./static/images/class_agnostic_motivation.jpeg" alt="Class Agnostic Motivation" width="80%" />
+            <h4 class="black has-text-centered mt-4">
+              Our Insight: Object boundaries in sketches are usually defined by visual structure, not semantics.
+            </h4>
+            <p>
+              Compared to natural images, sketch datasets are tiny.
+              So instead of relying on scale, we need a fine-tuning strategy that can generalize well. So, which cues can we always rely on to spot objects in a sketch?
+              We observe that for sketches with different objects, scenes, and styles,
+              we can still identify each object almost instantly. For example, the two sketches above demonstrate this well. <br /><br />
+              Gestalt principles suggest we use visual cues like proximity, closure, and continuity to group strokes into objects. Even when content and style change, these perceptual signals for object boundaries stay the same.
+              <br /><br />
+              So, how do we enable a model do the same?
+            </p>
+          </div>
+
+          <div class="content has-text-justified place-items-center mt-4">
+            <img src="./static/images/data_change.png" alt="Data Change Label" width="60%" />
+            <p><b>✅ Our Solution: </b>
+              We fine-tune a Grounding DINO model specifically for sketches. We make use of the SketchyScene dataset, and to enable class-agnostic detection of any objects across sketches, the key change we made was to the training data.
+              <br /> <br />
+              We relabeled every instance in the dataset as “object.” Whether it's a tree, a horse, or a cloud — they're all treated the same. This gives the model far more examples for learning to distinguish between objects. We finetune Grounding DINO with this modified SketchyScene dataset, and at inference time, we just prompt it with “object,” and it returns bounding boxes for every object it sees.
+              <br /> <br />
+              <b> Our fine-tuning technique proves highly effective, achieving a substantial improvement in GroundingDINO's detection performance on sketches, with Average Precision increasing from 26% to 74%. </b> Please refer to the paper for technical details and numerical evaluations.
             </p>
           </div>
           <!-- object detection -->
